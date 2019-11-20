@@ -170,7 +170,7 @@ PgToExpressJson = (function() {
       if (valid.pass) {
         client = new this.client(this.config.database);
         client.connect();
-        return client.query(`insert ${this.tablename} where id = $1`, [id]).then(function(result) {
+        return client.query(insertQuery(object), [id]).then(function(result) {
           if (result != null) {
             return response.json({
               data: result.rows[0],

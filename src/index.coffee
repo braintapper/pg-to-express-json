@@ -131,7 +131,7 @@ class PgToExpressJson
     if valid.pass
       client = new @client(@config.database)
       client.connect()
-      client.query "insert #{@tablename} where id = $1", [id]
+      client.query insertQuery(object), [id]
       .then (result) ->
         if result?
           response.json { data: result.rows[0], error: false }
