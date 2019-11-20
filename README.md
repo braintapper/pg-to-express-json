@@ -4,13 +4,13 @@ Runs CRUD queries and returns a canned json response (res.json) for Express.
 
 
 ## Response format:
-
+```
 {
-  data: [] / {}
+  data: [collection] / {item}
   error: true
   e: error object
 }
-
+```
 
 ## Usage
 
