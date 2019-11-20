@@ -1,0 +1,32 @@
+{
+  "name": "pg-to-express-json",
+  "version": "0.0.1",
+  "description": "Runs CRUD queries and returns a canned json response (res.json) for Express.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/braintapper/pg-to-express-json.git"
+  },
+  "keywords": [
+    "pg",
+    "express",
+    "json"
+  ],
+  "author": "Steven Ng",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/braintapper/pg-to-express-json/issues"
+  },
+  "homepage": "https://github.com/braintapper/pg-to-express-json#readme",
+  "dependencies": {
+    "pg": "^7.13.0",
+    "sugar": "^2.0.6"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.2",
+    "gulp-coffee": "^3.0.3"
+  }
+}
