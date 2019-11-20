@@ -163,7 +163,7 @@ PgToExpressJson = (function() {
       });
     }
 
-    insert(request, response) {
+    insert(object, response) {
       var client, that, valid;
       that = this;
       valid = this.validate(object);

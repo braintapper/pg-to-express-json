@@ -125,7 +125,7 @@ class PgToExpressJson
         response.json { data: {}, error: true, e: err }
 
 
-  insert: (request, response)->
+  insert: (object, response)->
     that = @
     valid = @validate(object)
     if valid.pass
