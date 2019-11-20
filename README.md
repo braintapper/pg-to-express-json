@@ -110,6 +110,8 @@ env.json
 
 ## Overwiteable functions
 
+Everything is overwritable, but these are the ones of particular interest:
+
 tablename
 
 validate
