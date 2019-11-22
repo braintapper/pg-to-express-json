@@ -2,6 +2,7 @@
 
 Runs CRUD queries and returns a canned json response (res.json) for Express.
 
+Not ready for use.
 
 ## Response format:
 ```
