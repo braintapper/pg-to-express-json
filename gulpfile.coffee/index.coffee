@@ -11,5 +11,12 @@ coffeeTask = require("./coffee.coffee")
 
 task "coffee", coffeeTask
 
+
+testsTask = require("./tests.coffee")
+
+task "tests", testsTask
+
+
 task "watch", (cb)->
   watch coffeeTask.watch, coffeeTask
+  watch testsTask.watch, testsTask

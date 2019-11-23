@@ -2,8 +2,8 @@ gulp   = require('gulp')
 coffee = require("gulp-coffee")
 
 
-sourcePath = ["src/index.coffee"]
-destinationPath = "./"
+sourcePath = ["src/tests.coffee"]
+destinationPath = "./tests"
 
 
 
@@ -16,4 +16,4 @@ module.exports = (cb)->
     cb()
 
 module.exports.watch = sourcePath
-module.exports.displayName = "coffee"
+module.exports.displayName = "tests"
