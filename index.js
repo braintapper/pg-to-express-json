@@ -266,6 +266,8 @@ PgToExpressJson = (function() {
 
   };
 
+  PgToExpressJson.prototype.debug = false;
+
   PgToExpressJson.prototype.client = {};
 
   PgToExpressJson.prototype.config = {};

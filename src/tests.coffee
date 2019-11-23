@@ -2,7 +2,7 @@ response =
   json: (output)->
     console.log output
 
-testDb =
+testConfig =
   "host": "192.168.1.10"
   "database": "test_db"
   "user": "test_user"
@@ -39,8 +39,8 @@ class TestTable extends DbResponse
       else
         "test_table"
 
-testModel = new TestTable
-
+testModel = new TestTable(testConfig)
+testModel.debug = true
 
 
 console.log testModel

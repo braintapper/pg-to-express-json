@@ -24,6 +24,7 @@ Sugar.extend()
 
 class PgToExpressJson
 
+  debug: false
   client: {}
   config: {}
 
