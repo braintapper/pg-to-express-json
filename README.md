@@ -31,20 +31,20 @@ router.get '/', (req, res) ->
   collection.select res
 
 router.get '/:id', (req, res) ->
-  collection = new Resource(config)
-  collection.selectOne req.params.id, res
+  item = new Resource(config)
+  item.selectOne req.params.id, res
 
 router.put '/:id', (req, res) ->
-  collection = new Resource(config)
-  collection.update req.body, res
+  item = new Resource(config)
+  item.update req.body, res
 
 router.post '/', (req, res) ->
-  collection = new Resource(config)
-  collection.insert req.body, res
+  item = new Resource(config)
+  item.insert req.body, res
 
 router.delete '/', (req, res) ->
-  collection = new Resource(config)
-  collection.delete req.body, res
+  item = new Resource(config)
+  item.delete req.body, res
 
 module.exports = router
 ```

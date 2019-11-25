@@ -26,6 +26,7 @@
     "sugar": "^2.0.6"
   },
   "devDependencies": {
+    "fs-extra": "^8.1.0",
     "gulp": "^4.0.2",
     "gulp-coffee": "^3.0.3"
   }

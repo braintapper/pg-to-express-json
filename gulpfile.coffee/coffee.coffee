@@ -2,7 +2,7 @@ gulp   = require('gulp')
 coffee = require("gulp-coffee")
 
 
-sourcePath = ["src/index.coffee"]
+sourcePath = ["src/**/*.coffee"]
 destinationPath = "./"
 
 

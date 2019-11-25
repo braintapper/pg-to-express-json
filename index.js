@@ -22,7 +22,14 @@ Sugar.extend();
 
 PgToExpressJson = (function() {
   class PgToExpressJson {
-    
+    constructor(config) {
+      var pg;
+      pg = require('pg');
+      pg.defaults.parseInt8 = true;
+      this.client = pg.Client;
+      this.config = config;
+    }
+
     // This can be a sub select statement, and controlled with a case statement
     tablename(context) {
       switch (context) {
@@ -34,11 +41,6 @@ PgToExpressJson = (function() {
         case "delete":
           return "tablename1";
       }
-    }
-
-    constructor(config) {
-      this.client = require('pg').Client;
-      this.config = config;
     }
 
     collectionTransform(array) { // this is a list transform
@@ -53,6 +55,18 @@ PgToExpressJson = (function() {
       return object;
     }
 
+    attribute_whitelist(context) {
+      var attributes;
+      attributes = this.attributes.clone();
+      switch (context) {
+        case "select":
+        case "selectOne":
+          return attributes.subtract([]);
+        default:
+          return attributes.subtract([]);
+      }
+    }
+
     // validate the attributes of the object
     validate(obj) {
       return {
@@ -62,18 +76,42 @@ PgToExpressJson = (function() {
     }
 
     // match the attributes of the object to the attribute whitelist
-    matchAttributes(obj) {
-      return this.attribute_whitelist.intersect(Object.keys(obj));
+    matchAttributes(context, obj) {
+      return this.attribute_whitelist(context).intersect(Object.keys(obj));
     }
 
     // match the values of the object to the matched attributes
-    matchValues(obj) {
+    matchValues(context, obj) {
       var output;
       output = [];
-      this.matchAttributes(obj).exclude(this.id).forEach(function(item) {
+      this.matchAttributes(context, obj).exclude(this.id).forEach(function(item) {
         return output.push(obj[item]);
       });
-      output.push(obj['id']);
+      switch (context) {
+        case "insert":
+          if (this.timestamps) {
+            output.push(Date.create().format(this.date_format));
+            output.push(Date.create().format(this.date_format));
+          }
+          break;
+        case "update":
+          if (this.timestamps) {
+            output.push(Date.create().format(this.date_format));
+          }
+          output.push(obj['id']);
+      }
+      return output;
+    }
+
+    matchParameters(context, obj) {
+      var output;
+      output = [];
+      this.matchAttributes(context, obj).exclude(this.id).forEach(function(item, index) {
+        return output.push(`$${index + 1}`);
+      });
+      if (context === "update") {
+        output.push(obj['id']);
+      }
       return output;
     }
 
@@ -88,17 +126,28 @@ PgToExpressJson = (function() {
     }
 
     updateQuery(obj) {
-      var set, sql, updateAttributes;
-      updateAttributes = this.matchAttributes(obj).exclude(this.id);
-      set = updateAttributes.map(function(item, index) {
+      var attributes, set, sql;
+      attributes = this.matchAttributes('update', obj).exclude(this.id);
+      if (this.timestamps) {
+        attributes.append(["updated_at"]);
+      }
+      set = attributes.map(function(item, index) {
         return `${item} = $${index + 1}`;
       });
-      sql = `update ${this.tablename('update')} set ${set.join(',')} where id=$${updateAttributes.length + 1}`;
+      sql = `update ${this.tablename('update')} set ${set.join(',')} where id=$${attributes.length + 1} returning *`;
       return sql;
     }
 
     insertQuery(obj) {
-      return `insert into ${this.tablename('insert')} (${matchAttributes(obj).join(',')}) values (${matchValues(obj).join(',')})`;
+      var attributes, parameterCount, parameters;
+      attributes = this.matchAttributes('insert', obj);
+      parameters = this.matchParameters('insert', obj);
+      parameterCount = parameters.length;
+      if (this.timestamps) {
+        attributes.append(["created_at", "updated_at"]);
+        parameters.append([`$${parameterCount + 1}`, `$${parameterCount + 2}`]);
+      }
+      return `insert into ${this.tablename('insert')} (${attributes.join(',')}) values (${parameters.join(',')}) returning *`;
     }
 
     deleteQuery(obj) {
@@ -108,7 +157,7 @@ PgToExpressJson = (function() {
     select(response) {
       var client, that;
       that = this;
-      client = new this.client(this.config.database);
+      client = new this.client(this.config);
       client.connect();
       return client.query(this.selectQuery()).then(function(result) {
         if (result != null) {
@@ -131,13 +180,15 @@ PgToExpressJson = (function() {
             e: err
           });
         }
+      }).finally(function() {
+        return client.end();
       });
     }
 
     selectOne(id, response) {
       var client, that;
       that = this;
-      client = new this.client(this.config.database);
+      client = new this.client(this.config);
       client.connect();
       return client.query(this.selectOneQuery(), [id]).then(function(result) {
         if (result != null) {
@@ -160,6 +211,8 @@ PgToExpressJson = (function() {
             e: err
           });
         }
+      }).finally(function() {
+        return client.end();
       });
     }
 
@@ -168,12 +221,12 @@ PgToExpressJson = (function() {
       that = this;
       valid = this.validate(object);
       if (valid.pass) {
-        client = new this.client(this.config.database);
+        client = new this.client(this.config);
         client.connect();
-        return client.query(insertQuery(object), [id]).then(function(result) {
+        return client.query(this.insertQuery(object), this.matchValues('insert', object)).then(function(result) {
           if (result != null) {
             return response.json({
-              data: result.rows[0],
+              data: that.modelTransform(result.rows[0]),
               error: false
             });
           } else {
@@ -191,6 +244,8 @@ PgToExpressJson = (function() {
               e: err
             });
           }
+        }).finally(function() {
+          return client.end();
         });
       } else {
         return response.json({
@@ -206,12 +261,16 @@ PgToExpressJson = (function() {
       that = this;
       valid = this.validate(object);
       if (valid.pass) {
-        client = new this.client(this.config.database);
+        client = new this.client(this.config);
         client.connect();
-        return client.query(this.updateQuery(object), this.matchValues(object)).then(function(result) {
+        return client.query(this.updateQuery(object), this.matchValues('update', object)).then(function(result) {
           if (result != null) {
-            return that.selectOne(object.id, response);
+            return response.json({
+              data: that.modelTransform(result.rows[0]),
+              error: false
+            });
           } else {
+            //that.selectOne object.id, response
             return response.json({
               data: {},
               error: true,
@@ -226,6 +285,8 @@ PgToExpressJson = (function() {
               e: err
             });
           }
+        }).finally(function() {
+          return client.end();
         });
       } else {
         return response.json({
@@ -238,12 +299,14 @@ PgToExpressJson = (function() {
 
     delete(id, response) {
       var client;
-      client = new this.client(this.config.database);
+      client = new this.client(this.config);
       client.connect();
       return client.query(this.deleteQuery(), [id]).then(function(result) {
         if (result != null) {
           return response.json({
-            data: result.rows[0],
+            data: {
+              rows: result.rowCount
+            },
             error: false
           });
         } else {
@@ -261,6 +324,8 @@ PgToExpressJson = (function() {
             e: err
           });
         }
+      }).finally(function() {
+        return client.end();
       });
     }
 
@@ -272,10 +337,13 @@ PgToExpressJson = (function() {
 
   PgToExpressJson.prototype.config = {};
 
+  PgToExpressJson.prototype.date_format = "%Y-%m-%d %H:%M:%S";
+
+  PgToExpressJson.prototype.timestamps = true; // add created_at, updated_at
+
   PgToExpressJson.prototype.id = "id"; // attribute for id
 
-  // todo: make this an object and by operation (selectOne, select, insert, update)
-  PgToExpressJson.prototype.attribute_whitelist = [];
+  PgToExpressJson.prototype.attributes = [];
 
   PgToExpressJson.prototype.validations = {
     required: [],

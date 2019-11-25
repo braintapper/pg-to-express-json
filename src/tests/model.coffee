@@ -1,14 +1,4 @@
-response =
-  json: (output)->
-    console.log output
-
-testConfig =
-  "host": "192.168.1.10"
-  "database": "test_db"
-  "user": "test_user"
-  "password": "test_pw"
-  "port": 5432
-
+DbResponse = require "../index.js"
 ###
 
 # Test table info
@@ -20,11 +10,11 @@ created_at timestamp w/tz
 updated_at timestamp w/tz
 
 ###
-
-DbResponse = require "../index.js"
-
-
-class TestTable extends DbResponse
+class Model extends DbResponse
+  attributes: [
+    "name",
+    "description"
+  ]
   tablename: (context)->
     switch context
       when "select", "selectOne"
@@ -39,8 +29,4 @@ class TestTable extends DbResponse
       else
         "test_table"
 
-testModel = new TestTable(testConfig)
-testModel.debug = true
-
-
-console.log testModel
+module.exports = Model
