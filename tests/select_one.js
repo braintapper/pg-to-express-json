@@ -18,7 +18,7 @@ testModel.debug = true;
 
 res = {
   json: function(output) {
-    console.log("output");
+    console.log("Output");
     return console.log(output);
   }
 };

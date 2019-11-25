@@ -18,7 +18,7 @@ testModel.debug = true
 
 res =
   json: (output)->
-    console.log "output"
+    console.log "Output"
     console.log output
 
 testModel.selectOne 1, res
