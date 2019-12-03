@@ -35,10 +35,11 @@ class PgToExpressJson
   constructor: (config)->
     pg = require('pg')
     pg.defaults.parseInt8 = true
-    DATE_OID = 1082
+
     parseDate = (date)->
       return Date.create(date)
-    pg.types.setTypeParser(DATE_OID, parseDate)
+    [1082,1083,1114,1184].forEach (type)->
+      pg.types.setTypeParser(type, parseDate)
     @client = pg.Client
     @config = config
 
