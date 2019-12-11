@@ -1,6 +1,6 @@
 {
   "name": "pg-to-express-json",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Runs CRUD queries and returns a canned json response (res.json) for Express.",
   "main": "index.js",
   "scripts": {

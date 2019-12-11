@@ -160,7 +160,7 @@ class PgToExpressJson
     client.query @selectOneQuery(), [id]
     .then (result) ->
       if result?
-        response.json { data: that.modelTransform(result.rows[0]), error: false }
+        response.json { data: that.collectionTransform(result.rows), error: false }
       else
         response.json { data: {}, error: true, e: "No result returned" }
     .catch (err)->
@@ -178,7 +178,7 @@ class PgToExpressJson
       client.query @insertQuery(object), @matchValues('insert',object)
       .then (result) ->
         if result?
-          response.json { data: that.modelTransform(result.rows[0]), error: false }
+          response.json { data: that.collectionTransform(result.rows), error: false }
         else
           response.json { data: {}, error: true, e: "No result returned" }
       .catch (err)->
@@ -198,7 +198,7 @@ class PgToExpressJson
       client.query @updateQuery(object), @matchValues('update',object)
       .then (result) ->
         if result?
-          response.json { data: that.modelTransform(result.rows[0]), error: false }
+          response.json { data: that.collectionTransform(result.rows), error: false }
           #that.selectOne object.id, response
         else
           response.json { data: {}, error: true, e: "Something might have gone wrong with the update" }
