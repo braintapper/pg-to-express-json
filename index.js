@@ -23,9 +23,15 @@ Sugar.extend();
 PgToExpressJson = (function() {
   class PgToExpressJson {
     constructor(config) {
-      var pg;
+      var parseDate, pg;
       pg = require('pg');
       pg.defaults.parseInt8 = true;
+      parseDate = function(date) {
+        return Date.create(date);
+      };
+      [1082, 1083, 1114, 1184].forEach(function(type) {
+        return pg.types.setTypeParser(type, parseDate);
+      });
       this.client = pg.Client;
       this.config = config;
     }
@@ -193,7 +199,7 @@ PgToExpressJson = (function() {
       return client.query(this.selectOneQuery(), [id]).then(function(result) {
         if (result != null) {
           return response.json({
-            data: that.modelTransform(result.rows[0]),
+            data: that.collectionTransform(result.rows),
             error: false
           });
         } else {
@@ -226,7 +232,7 @@ PgToExpressJson = (function() {
         return client.query(this.insertQuery(object), this.matchValues('insert', object)).then(function(result) {
           if (result != null) {
             return response.json({
-              data: that.modelTransform(result.rows[0]),
+              data: that.collectionTransform(result.rows),
               error: false
             });
           } else {
@@ -266,7 +272,7 @@ PgToExpressJson = (function() {
         return client.query(this.updateQuery(object), this.matchValues('update', object)).then(function(result) {
           if (result != null) {
             return response.json({
-              data: that.modelTransform(result.rows[0]),
+              data: that.collectionTransform(result.rows),
               error: false
             });
           } else {
