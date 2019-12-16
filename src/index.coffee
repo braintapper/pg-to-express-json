@@ -157,7 +157,7 @@ class PgToExpressJson
     that = @
     client = new @client(@config)
     client.connect()
-    client.query @selectOneQuery(), [request.body.id]
+    client.query @selectOneQuery(), [request.params.id]
     .then (result) ->
       if result?
         response.json { data: that.collectionTransform(result.rows), error: false }
@@ -213,7 +213,7 @@ class PgToExpressJson
   delete: (request, response)->
     client = new @client(@config)
     client.connect()
-    client.query @deleteQuery(), [request.body.id]
+    client.query @deleteQuery(), [request.params.id]
     .then (result) ->
       if result?
         response.json { data: { rows: result.rowCount }, error: false }

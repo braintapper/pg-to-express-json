@@ -196,7 +196,7 @@ PgToExpressJson = (function() {
       that = this;
       client = new this.client(this.config);
       client.connect();
-      return client.query(this.selectOneQuery(), [request.body.id]).then(function(result) {
+      return client.query(this.selectOneQuery(), [request.params.id]).then(function(result) {
         if (result != null) {
           return response.json({
             data: that.collectionTransform(result.rows),
@@ -307,7 +307,7 @@ PgToExpressJson = (function() {
       var client;
       client = new this.client(this.config);
       client.connect();
-      return client.query(this.deleteQuery(), [request.body.id]).then(function(result) {
+      return client.query(this.deleteQuery(), [request.params.id]).then(function(result) {
         if (result != null) {
           return response.json({
             data: {
