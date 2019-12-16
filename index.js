@@ -160,7 +160,7 @@ PgToExpressJson = (function() {
       return `delete from ${this.tablename('insert')} where id = $1`;
     }
 
-    select(response) {
+    select(request, response) {
       var client, that;
       that = this;
       client = new this.client(this.config);
@@ -191,12 +191,12 @@ PgToExpressJson = (function() {
       });
     }
 
-    selectOne(id, response) {
+    selectOne(request, response) {
       var client, that;
       that = this;
       client = new this.client(this.config);
       client.connect();
-      return client.query(this.selectOneQuery(), [id]).then(function(result) {
+      return client.query(this.selectOneQuery(), [request.body.id]).then(function(result) {
         if (result != null) {
           return response.json({
             data: that.collectionTransform(result.rows),
@@ -222,14 +222,14 @@ PgToExpressJson = (function() {
       });
     }
 
-    insert(object, response) {
+    insert(request, response) {
       var client, that, valid;
       that = this;
-      valid = this.validate(object);
+      valid = this.validate(request.body);
       if (valid.pass) {
         client = new this.client(this.config);
         client.connect();
-        return client.query(this.insertQuery(object), this.matchValues('insert', object)).then(function(result) {
+        return client.query(this.insertQuery(request.body), this.matchValues('insert', request.body)).then(function(result) {
           if (result != null) {
             return response.json({
               data: that.collectionTransform(result.rows),
@@ -262,14 +262,14 @@ PgToExpressJson = (function() {
       }
     }
 
-    update(object, response) {
+    update(request, response) {
       var client, that, valid;
       that = this;
-      valid = this.validate(object);
+      valid = this.validate(request.body);
       if (valid.pass) {
         client = new this.client(this.config);
         client.connect();
-        return client.query(this.updateQuery(object), this.matchValues('update', object)).then(function(result) {
+        return client.query(this.updateQuery(request.body), this.matchValues('update', object)).then(function(result) {
           if (result != null) {
             return response.json({
               data: that.collectionTransform(result.rows),
@@ -303,11 +303,11 @@ PgToExpressJson = (function() {
       }
     }
 
-    delete(id, response) {
+    delete(request, response) {
       var client;
       client = new this.client(this.config);
       client.connect();
-      return client.query(this.deleteQuery(), [id]).then(function(result) {
+      return client.query(this.deleteQuery(), [request.body.id]).then(function(result) {
         if (result != null) {
           return response.json({
             data: {

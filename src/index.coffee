@@ -137,7 +137,7 @@ class PgToExpressJson
   deleteQuery: (obj)->
     "delete from #{@tablename('insert')} where id = $1"
 
-  select: (response)->
+  select: (request,response)->
     that = @
     client = new @client(@config)
     client.connect()
@@ -153,11 +153,11 @@ class PgToExpressJson
         response.json { data: [], error: true, e: err }
     .finally ()->
       client.end()
-  selectOne: (id, response)->
+  selectOne: (request, response)->
     that = @
     client = new @client(@config)
     client.connect()
-    client.query @selectOneQuery(), [id]
+    client.query @selectOneQuery(), [request.body.id]
     .then (result) ->
       if result?
         response.json { data: that.collectionTransform(result.rows), error: false }
@@ -169,13 +169,13 @@ class PgToExpressJson
     .finally ()->
       client.end()
 
-  insert: (object, response)->
+  insert: (request, response)->
     that = @
-    valid = @validate(object)
+    valid = @validate(request.body)
     if valid.pass
       client = new @client(@config)
       client.connect()
-      client.query @insertQuery(object), @matchValues('insert',object)
+      client.query @insertQuery(request.body), @matchValues('insert',request.body)
       .then (result) ->
         if result?
           response.json { data: that.collectionTransform(result.rows), error: false }
@@ -189,13 +189,13 @@ class PgToExpressJson
     else
       response.json { data: {}, error: true, e: "validation failed" }
 
-  update: (object, response)->
+  update: (request, response)->
     that = @
-    valid = @validate(object)
+    valid = @validate(request.body)
     if valid.pass
       client = new @client(@config)
       client.connect()
-      client.query @updateQuery(object), @matchValues('update',object)
+      client.query @updateQuery(request.body), @matchValues('update',object)
       .then (result) ->
         if result?
           response.json { data: that.collectionTransform(result.rows), error: false }
@@ -210,10 +210,10 @@ class PgToExpressJson
     else
       response.json { data: {}, error: true, e: "validation failed" }
 
-  delete: (id, response)->
+  delete: (request, response)->
     client = new @client(@config)
     client.connect()
-    client.query @deleteQuery(), [id]
+    client.query @deleteQuery(), [request.body.id]
     .then (result) ->
       if result?
         response.json { data: { rows: result.rowCount }, error: false }
