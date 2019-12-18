@@ -167,24 +167,13 @@ PgToExpressJson = (function() {
       client.connect();
       return client.query(this.selectQuery()).then(function(result) {
         if (result != null) {
-          return response.json({
-            data: that.collectionTransform(result.rows),
-            error: false
-          });
+          return response.json(that.collectionTransform(result.rows));
         } else {
-          return response.json({
-            data: [],
-            error: true,
-            e: "No result returned"
-          });
+          return response.json([]);
         }
       }).catch(function(err) {
         if (err != null) {
-          return response.json({
-            data: [],
-            error: true,
-            e: err
-          });
+          return response.json([]);
         }
       }).finally(function() {
         return client.end();
@@ -198,24 +187,13 @@ PgToExpressJson = (function() {
       client.connect();
       return client.query(this.selectOneQuery(), [request.params.id]).then(function(result) {
         if (result != null) {
-          return response.json({
-            data: that.collectionTransform(result.rows),
-            error: false
-          });
+          return response.json(that.collectionTransform(result.rows));
         } else {
-          return response.json({
-            data: {},
-            error: true,
-            e: "No result returned"
-          });
+          return response.json([]);
         }
       }).catch(function(err) {
         if (err != null) {
-          return response.json({
-            data: {},
-            error: true,
-            e: err
-          });
+          return response.json([]);
         }
       }).finally(function() {
         return client.end();
@@ -231,24 +209,13 @@ PgToExpressJson = (function() {
         client.connect();
         return client.query(this.insertQuery(request.body), this.matchValues('insert', request.body)).then(function(result) {
           if (result != null) {
-            return response.json({
-              data: that.collectionTransform(result.rows),
-              error: false
-            });
+            return response.json(that.collectionTransform(result.rows));
           } else {
-            return response.json({
-              data: {},
-              error: true,
-              e: "No result returned"
-            });
+            return response.json([]);
           }
         }).catch(function(err) {
           if (err != null) {
-            return response.json({
-              data: {},
-              error: true,
-              e: err
-            });
+            return response.json([]);
           }
         }).finally(function() {
           return client.end();
@@ -271,35 +238,20 @@ PgToExpressJson = (function() {
         client.connect();
         return client.query(this.updateQuery(request.body), this.matchValues('update', object)).then(function(result) {
           if (result != null) {
-            return response.json({
-              data: that.collectionTransform(result.rows),
-              error: false
-            });
+            return response.json(that.collectionTransform(result.rows));
           } else {
             //that.selectOne object.id, response
-            return response.json({
-              data: {},
-              error: true,
-              e: "Something might have gone wrong with the update"
-            });
+            return response.json([]);
           }
         }).catch(function(err) {
           if (err != null) {
-            return response.json({
-              data: {},
-              error: true,
-              e: err
-            });
+            return response.json([]);
           }
         }).finally(function() {
           return client.end();
         });
       } else {
-        return response.json({
-          data: {},
-          error: true,
-          e: "validation failed"
-        });
+        return response.json([]);
       }
     }
 
@@ -309,26 +261,17 @@ PgToExpressJson = (function() {
       client.connect();
       return client.query(this.deleteQuery(), [request.params.id]).then(function(result) {
         if (result != null) {
-          return response.json({
-            data: {
+          return response.json([
+            {
               rows: result.rowCount
-            },
-            error: false
-          });
+            }
+          ]);
         } else {
-          return response.json({
-            data: {},
-            error: true,
-            e: "No result returned"
-          });
+          return response.json([]);
         }
       }).catch(function(err) {
         if (err != null) {
-          return response.json({
-            data: {},
-            error: true,
-            e: err
-          });
+          return response.json([]);
         }
       }).finally(function() {
         return client.end();

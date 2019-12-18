@@ -145,12 +145,12 @@ class PgToExpressJson
 
     .then (result) ->
       if result?
-        response.json { data: that.collectionTransform(result.rows), error: false }
+        response.json that.collectionTransform(result.rows)
       else
-        response.json { data: [], error: true, e: "No result returned" }
+        response.json []
     .catch (err)->
       if err?
-        response.json { data: [], error: true, e: err }
+        response.json []
     .finally ()->
       client.end()
   selectOne: (request, response)->
@@ -160,12 +160,12 @@ class PgToExpressJson
     client.query @selectOneQuery(), [request.params.id]
     .then (result) ->
       if result?
-        response.json { data: that.collectionTransform(result.rows), error: false }
+        response.json that.collectionTransform(result.rows)
       else
-        response.json { data: {}, error: true, e: "No result returned" }
+        response.json []
     .catch (err)->
       if err?
-        response.json { data: {}, error: true, e: err }
+        response.json []
     .finally ()->
       client.end()
 
@@ -178,12 +178,12 @@ class PgToExpressJson
       client.query @insertQuery(request.body), @matchValues('insert',request.body)
       .then (result) ->
         if result?
-          response.json { data: that.collectionTransform(result.rows), error: false }
+          response.json that.collectionTransform(result.rows)
         else
-          response.json { data: {}, error: true, e: "No result returned" }
+          response.json []
       .catch (err)->
         if err?
-          response.json { data: {}, error: true, e: err }
+          response.json []
       .finally ()->
         client.end()
     else
@@ -198,17 +198,17 @@ class PgToExpressJson
       client.query @updateQuery(request.body), @matchValues('update',object)
       .then (result) ->
         if result?
-          response.json { data: that.collectionTransform(result.rows), error: false }
+          response.json that.collectionTransform(result.rows)
           #that.selectOne object.id, response
         else
-          response.json { data: {}, error: true, e: "Something might have gone wrong with the update" }
+          response.json []
       .catch (err)->
         if err?
-          response.json { data: {}, error: true, e: err }
+          response.json []
       .finally ()->
         client.end()
     else
-      response.json { data: {}, error: true, e: "validation failed" }
+      response.json []
 
   delete: (request, response)->
     client = new @client(@config)
@@ -216,12 +216,12 @@ class PgToExpressJson
     client.query @deleteQuery(), [request.params.id]
     .then (result) ->
       if result?
-        response.json { data: { rows: result.rowCount }, error: false }
+        response.json [{ rows: result.rowCount }]
       else
-        response.json { data: {}, error: true, e: "No result returned" }
+        response.json []
     .catch (err)->
       if err?
-        response.json { data: {}, error: true, e: err }
+        response.json []
     .finally ()->
       client.end()
 
